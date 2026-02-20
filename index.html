@@ -176,12 +176,9 @@
             align-items: center;
             flex-direction: column;
         }
-        .loader-bar {
-            width: 0%;
-            height: 2px;
-            background: #dfff00;
-            margin-top: 20px;
-            transition: width 0.1s;
+        
+        #pear-loader-svg {
+            filter: drop-shadow(0 0 15px rgba(223, 255, 0, 0.3));
         }
     </style>
 </head>
@@ -195,10 +192,10 @@
 
     <!-- Loading Screen -->
     <div id="loader">
-        <h2 class="font-display text-4xl tracking-widest uppercase">Harvesting</h2>
-        <div class="w-64 h-[2px] bg-white/20 mt-4 overflow-hidden">
-            <div id="loader-progress" class="h-full bg-brand-accent w-0"></div>
-        </div>
+        <svg id="pear-loader-svg" viewBox="0 0 100 120" class="w-24 h-24 md:w-32 md:h-32 stroke-brand-accent fill-transparent" style="stroke-width: 3px; stroke-linecap: round; stroke-linejoin: round;">
+            <!-- Continuous line drawing of a minimalistic pear with stem -->
+            <path id="pear-loader-path" d="M 60 10 C 55 5, 50 10, 50 20 C 35 20, 20 40, 15 70 C 10 95, 30 115, 50 115 C 70 115, 90 95, 85 70 C 80 40, 65 20, 50 20" />
+        </svg>
     </div>
 
     <!-- ThreeJS Background -->
@@ -342,18 +339,33 @@
         window.scrollTo(0, 0);
         const isMobile = window.innerWidth < 768;
         
-        // Loader Simulation
+        // Loader Simulation (SVG Path Drawing)
         let loadProgress = 0;
-        const loadBar = document.getElementById('loader-progress');
+        const loaderPath = document.getElementById('pear-loader-path');
+        const pathLength = loaderPath.getTotalLength();
+        
+        // Setup initial dash array to hide the stroke
+        loaderPath.style.strokeDasharray = pathLength;
+        loaderPath.style.strokeDashoffset = pathLength;
+        loaderPath.style.transition = 'stroke-dashoffset 0.1s ease-out';
+
         const loadInterval = setInterval(() => {
-            loadProgress += Math.random() * 15;
+            loadProgress += Math.random() * 12; // Simulate loading chunks
             if (loadProgress >= 100) {
                 loadProgress = 100;
                 clearInterval(loadInterval);
-                initApp();
+                
+                // Add a satisfying color fill "pop" just before launching the app
+                gsap.to(loaderPath, { 
+                    fill: '#dfff00', 
+                    duration: 0.4, 
+                    ease: "power2.out",
+                    onComplete: initApp 
+                });
             }
-            loadBar.style.width = `${loadProgress}%`;
-        }, 100);
+            // Update the stroke offset to draw the line
+            loaderPath.style.strokeDashoffset = pathLength - (loadProgress / 100) * pathLength;
+        }, 80);
 
         function initApp() {
             // Initialize everything first

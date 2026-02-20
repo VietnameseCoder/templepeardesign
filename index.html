@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Templepear Web Design 🍐</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Space Grotesk', 'sans-serif'],
+                        display: ['Syne', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#050505',
+                            light: '#f4f4f0',
+                            accent: '#dfff00',
+                            pear: '#b5cc18'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Base Resets & Smooth Scroll Hide */
+        html.lenis, html.lenis body { height: auto; }
+        .lenis.lenis-smooth { scroll-behavior: auto !important; }
+        .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+        .lenis.lenis-stopped { overflow: hidden; }
+        .lenis.lenis-smooth iframe { pointer-events: none; }
+        
+        body {
+            background-color: #050505;
+            color: #f4f4f0;
+            overflow-x: hidden;
+            cursor: none; /* Custom cursor */
+        }
+
+        ::-webkit-scrollbar { display: none; }
+
+        /* WebGL Canvas */
+        #webgl-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Scrollytelling Content */
+        #content {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Typography & Layout Utilities */
+        .char {
+            display: inline-block;
+        }
+        
+        .clip-text {
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+        }
+
+        .text-outline {
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(244, 244, 240, 0.5);
+        }
+
+        /* Noise Overlay for organic feel */
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0.04;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+        }
+
+        /* Custom Cursor */
+        #cursor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 12px;
+            height: 12px;
+            background: #dfff00;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1000;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, background 0.3s, border 0.3s;
+            mix-blend-mode: difference;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #cursor::after {
+            content: attr(data-text);
+            position: absolute;
+            font-size: 10px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: bold;
+            color: #050505;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        #cursor.hover {
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: 1px solid #dfff00;
+        }
+        #cursor.scroll-state {
+            width: 80px;
+            height: 80px;
+            background: #f4f4f0;
+            border: none;
+            mix-blend-mode: normal;
+        }
+        #cursor.scroll-state::after {
+            opacity: 1;
+            content: "SCROLL";
+        }
+        
+        /* Values Hover Effects */
+        .value-title {
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .value-desc {
+            transition: opacity 0.6s, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateY(20px);
+        }
+        .hover-trigger:hover .value-title {
+            transform: translateY(-10px);
+        }
+        .hover-trigger:hover .value-desc {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Magnetic Button */
+        .magnetic-btn {
+            will-change: transform;
+        }
+
+        /* Loading Screen */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #050505;
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .loader-bar {
+            width: 0%;
+            height: 2px;
+            background: #dfff00;
+            margin-top: 20px;
+            transition: width 0.1s;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Noise Overlay -->
+    <div class="noise"></div>
+
+    <!-- Custom Cursor -->
+    <div id="cursor"></div>
+
+    <!-- Loading Screen -->
+    <div id="loader">
+        <h2 class="font-display text-4xl tracking-widest uppercase">Harvesting</h2>
+        <div class="w-64 h-[2px] bg-white/20 mt-4 overflow-hidden">
+            <div id="loader-progress" class="h-full bg-brand-accent w-0"></div>
+        </div>
+    </div>
+
+    <!-- ThreeJS Background -->
+    <div id="webgl-container"></div>
+
+    <!-- Scroll Content -->
+    <div id="smooth-wrapper">
+        <div id="smooth-content" id="content">
+            
+            <!-- Navbar -->
+            <nav class="fixed top-0 left-0 w-full p-8 flex justify-between items-center z-50 mix-blend-difference text-white">
+                <div class="font-display font-bold text-xl tracking-wider uppercase cursor-hover">TEMPLEPEAR&copy;</div>
+            </nav>
+
+            <!-- SECTION 1: HERO -->
+            <section class="h-screen w-full flex flex-col justify-center items-center relative mix-blend-difference" id="section-hero">
+                <div class="absolute inset-0 flex flex-col justify-center items-center pointer-events-none w-full">
+                    <h1 class="font-display text-[18vw] md:text-[14vw] leading-none tracking-tighter uppercase font-bold text-center split-target w-full" style="z-index: 2;">
+                        TEMPLE
+                    </h1>
+                    <h1 class="font-display text-[18vw] md:text-[14vw] leading-none tracking-tighter uppercase font-bold text-center text-outline split-target w-full" style="z-index: 2;">
+                        PEAR
+                    </h1>
+                </div>
+                <div class="absolute bottom-10 left-10 text-xs tracking-widest uppercase text-white/50 max-w-xs">
+                    <p>Scroll to explore.</p>
+                </div>
+            </section>
+
+            <!-- SECTION 2: ABOUT -->
+            <section class="min-h-screen w-full flex items-center p-8 md:p-20 relative mix-blend-difference" id="section-about">
+                <div class="w-full md:w-1/2">
+                    <h2 class="font-display text-5xl md:text-7xl font-bold uppercase leading-none mb-8 clip-text section-2-text">
+                        We shape<br>digital fruit.
+                    </h2>
+                    <p class="text-lg md:text-xl font-light max-w-md text-white/80 leading-relaxed section-2-fade">
+                        Templepear is a hyper-creative web design agency. We blend WebGL, advanced motion physics, and uncompromising typography to build digital platforms that leave a lasting taste.
+                    </p>
+                </div>
+            </section>
+
+            <!-- SECTION 3: SERVICES (Wireframe tech phase) -->
+            <section class="min-h-screen w-full flex items-center justify-end p-8 md:p-20 relative mix-blend-difference" id="section-services">
+                <div class="w-full md:w-1/2 text-right">
+                    <h2 class="font-display text-5xl md:text-7xl font-bold uppercase leading-none mb-8 text-brand-accent clip-text section-3-text">
+                        The Core.
+                    </h2>
+                    <ul class="text-2xl md:text-4xl font-display font-light space-y-4 uppercase section-3-fade">
+                        <li class="border-b border-white/20 pb-2 hover:pl-4 transition-all duration-300 cursor-hover">Creative Direction</li>
+                        <li class="border-b border-white/20 pb-2 hover:pl-4 transition-all duration-300 cursor-hover">WebGL & 3D Web</li>
+                        <li class="border-b border-white/20 pb-2 hover:pl-4 transition-all duration-300 cursor-hover">Immersive E-Commerce</li>
+                        <li class="border-b border-white/20 pb-2 hover:pl-4 transition-all duration-300 cursor-hover">Brand Identity</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- SECTION 3.5: VALUES (Horizontal Scroll) -->
+            <section class="h-screen w-full relative bg-brand-dark overflow-hidden" id="section-values">
+                <div class="h-full flex w-[400vw]" id="values-track">
+                    <!-- Panel 1 -->
+                    <div class="w-screen h-full flex flex-col justify-center px-10 md:px-20 bg-[#FF0055]/90 backdrop-blur-md text-white cursor-scroll hover-trigger">
+                        <h3 class="font-display text-[10vw] md:text-[8vw] font-black uppercase leading-none overflow-hidden"><span class="block value-title">Fearless.</span></h3>
+                        <p class="text-2xl md:text-4xl font-light mt-4 max-w-2xl opacity-0 value-desc">We dive into the unknown, pushing WebGL and motion to their absolute breaking point.</p>
+                    </div>
+                    <!-- Panel 2 -->
+                    <div class="w-screen h-full flex flex-col justify-center px-10 md:px-20 bg-[#0055FF]/90 backdrop-blur-md text-white cursor-scroll hover-trigger">
+                        <h3 class="font-display text-[10vw] md:text-[8vw] font-black uppercase leading-none overflow-hidden"><span class="block value-title">Crafted.</span></h3>
+                        <p class="text-2xl md:text-4xl font-light mt-4 max-w-2xl opacity-0 value-desc">Every pixel, every vertex, meticulously positioned for maximum sensory impact.</p>
+                    </div>
+                    <!-- Panel 3 -->
+                    <div class="w-screen h-full flex flex-col justify-center px-10 md:px-20 bg-[#FF4400]/90 backdrop-blur-md text-white cursor-scroll hover-trigger">
+                        <h3 class="font-display text-[10vw] md:text-[8vw] font-black uppercase leading-none overflow-hidden"><span class="block value-title">Kinetic.</span></h3>
+                        <p class="text-2xl md:text-4xl font-light mt-4 max-w-2xl opacity-0 value-desc">Motion is our medium. Static is dead. Long live the scrollytelling revolution.</p>
+                    </div>
+                    <!-- Panel 4 -->
+                    <div class="w-screen h-full flex flex-col justify-center px-10 md:px-20 bg-[#dfff00]/95 backdrop-blur-md text-brand-dark cursor-scroll hover-trigger">
+                        <h3 class="font-display text-[10vw] md:text-[8vw] font-black uppercase leading-none overflow-hidden"><span class="block value-title text-brand-dark">Immersive.</span></h3>
+                        <p class="text-2xl md:text-4xl font-light mt-4 max-w-2xl opacity-0 value-desc text-brand-dark">We don't build pages. We build unforgettable digital ecosystems.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 4: BIG TEXT SCROLL -->
+            <section class="h-[150vh] w-full relative overflow-hidden mix-blend-difference" id="section-marquee">
+                <div class="sticky top-0 h-screen flex flex-col justify-center">
+                    <div class="marquee-container whitespace-nowrap overflow-hidden -rotate-2 scale-110">
+                        <h2 class="font-display text-[15vw] font-black uppercase text-outline marquee-text leading-none">
+                            EXPERIENCE DESIGN EXPERIENCE DESIGN EXPERIENCE
+                        </h2>
+                        <h2 class="font-display text-[15vw] font-black uppercase text-brand-light marquee-text-reverse leading-none">
+                            FUTURE VISION FUTURE VISION FUTURE VISION FUTURE
+                        </h2>
+                        <h2 class="font-display text-[15vw] font-black uppercase text-outline marquee-text leading-none">
+                            DIGITAL IMMERSION DIGITAL IMMERSION DIGITAL
+                        </h2>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 5: CONTACT -->
+            <section class="h-screen w-full flex flex-col justify-center items-center relative bg-brand-accent text-brand-dark" id="section-contact">
+                <div class="flex flex-col items-center justify-center w-full z-10">
+                    <h2 class="font-display text-[8vw] md:text-[6vw] font-bold uppercase text-center split-target text-brand-dark leading-none">
+                        Ready to bite?
+                    </h2>
+                    <a href="mailto:ledinhvuong2013@gmail.com" class="magnetic-btn mt-8 flex items-center gap-3 text-xl md:text-3xl font-bold text-brand-dark border-b-2 border-transparent hover:border-brand-dark pb-1 transition-all duration-300">
+                        <svg class="w-8 h-8 md:w-10 md:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        ledinhvuong2013@gmail.com
+                    </a>
+                </div>
+                <div class="absolute bottom-0 left-0 w-full p-6 md:p-10 flex flex-col md:flex-row justify-between items-center text-xs md:text-sm font-bold uppercase tracking-widest z-10 border-t-2 border-brand-dark bg-brand-dark text-brand-light">
+                    <span class="mb-2 md:mb-0">Templepear © 2026.</span>
+                    <span class="text-brand-accent">All rights reserved.</span>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        // --- UTILS: Text Splitter ---
+        function splitText(selector) {
+            document.querySelectorAll(selector).forEach(el => {
+                const text = el.innerText.trim();
+                el.innerHTML = text.split('').map(char => {
+                    if (char === ' ') return `<span class="char" style="width: 0.5em;">&nbsp;</span>`;
+                    return `<span class="char">${char}</span>`;
+                }).join('');
+            });
+        }
+
+        // --- 1. INITIALIZATION & LOADER ---
+        window.scrollTo(0, 0);
+        const isMobile = window.innerWidth < 768;
+        
+        // Loader Simulation
+        let loadProgress = 0;
+        const loadBar = document.getElementById('loader-progress');
+        const loadInterval = setInterval(() => {
+            loadProgress += Math.random() * 15;
+            if (loadProgress >= 100) {
+                loadProgress = 100;
+                clearInterval(loadInterval);
+                initApp();
+            }
+            loadBar.style.width = `${loadProgress}%`;
+        }, 100);
+
+        function initApp() {
+            // Initialize everything first
+            initSmoothScroll();
+            initThreeJS();
+            initScrollytelling();
+            initCustomCursor();
+
+            // Prevent FOUC (Flash of Unstyled Content) by setting start states instantly
+            gsap.set("#section-hero .char", { yPercent: 100, opacity: 0 });
+
+            // Hide Loader Animation
+            gsap.to('#loader', {
+                yPercent: -100,
+                duration: 1.2,
+                ease: "power4.inOut",
+                onComplete: () => {
+                    document.getElementById('loader').style.display = 'none';
+                }
+            });
+
+            // Start Hero Animations concurrently as the loader slides up
+            gsap.to("#section-hero .char", {
+                yPercent: 0,
+                opacity: 1,
+                stagger: 0.04,
+                duration: 1.5,
+                ease: "expo.out",
+                delay: 0.4
+            });
+
+            gsap.from(pearGroup.position, {
+                y: -5,
+                duration: 2.5,
+                ease: "power3.out",
+                delay: 0.2
+            });
+        }
+
+        // --- 2. SMOOTH SCROLL (Lenis) ---
+        let lenis;
+        function initSmoothScroll() {
+            lenis = new Lenis({
+                duration: 1.5,
+                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Apple-like ease
+                direction: 'vertical',
+                gestureDirection: 'vertical',
+                smooth: true,
+                mouseMultiplier: 1,
+                smoothTouch: false,
+                touchMultiplier: 2,
+            });
+
+            lenis.on('scroll', ScrollTrigger.update);
+
+            gsap.ticker.add((time) => {
+                lenis.raf(time * 1000);
+            });
+            gsap.ticker.lagSmoothing(0);
+        }
+
+        // --- 3. THREE.JS (The Math Pear) ---
+        let scene, camera, renderer, pearGroup, pearMat, pearWireMat, mouseLight;
+        let mouseX = 0, mouseY = 0;
+        let targetX = 0, targetY = 0;
+
+        function initThreeJS() {
+            const container = document.getElementById('webgl-container');
+            
+            scene = new THREE.Scene();
+            // Optional: very faint fog for depth
+            scene.fog = new THREE.FogExp2(0x050505, 0.02);
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.z = isMobile ? 12 : 8;
+
+            renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            // Removed physicallyCorrectLights to allow our intense, stylized studio lighting to shine
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.2;
+            container.appendChild(renderer.domElement);
+
+            // --- The Pear Math Model ---
+            pearGroup = new THREE.Group();
+
+            // 1. Create the Profile Curve
+            const points = [];
+            const segments = 100; // Increased for a much smoother vertical curve
+            for (let i = 0; i <= segments; i++) {
+                const t = i / segments; // 0 to 1
+                const y = (t * 3.5) - 1.75; // -1.75 to 1.75
+                // Improved magic equation for a plumper, more elegant pear shape
+                const x = Math.sin(t * Math.PI) * (1.2 + 0.5 * Math.cos(t * Math.PI)) * (1 - t * 0.2); 
+                points.push(new THREE.Vector2(Math.max(0.001, x), y)); // Max prevents normal artifacting at the poles
+            }
+
+            // Increased radial segments to 128 for a flawlessly smooth, round mesh
+            const pearGeo = new THREE.LatheGeometry(points, 128);
+            pearGeo.computeVertexNormals();
+
+            // 2. High-end Glossy Material (Removed high transmission to fix the "dark glass" void)
+            pearMat = new THREE.MeshPhysicalMaterial({
+                color: 0xdfff00, // Vibrant Pear Green/Yellow
+                emissive: 0x1a2200, // Subtle inner glow so shadows are never fully black
+                metalness: 0.1,
+                roughness: 0.3, // Slightly soft base
+                clearcoat: 1.0, // High-gloss outer shell
+                clearcoatRoughness: 0.05,
+                transparent: true,
+                opacity: 1,
+                side: THREE.DoubleSide
+            });
+
+            const pearMesh = new THREE.Mesh(pearGeo, pearMat);
+            pearGroup.add(pearMesh);
+
+            // 2.5 Wireframe Helper Material (Invisible at start)
+            pearWireMat = new THREE.MeshStandardMaterial({
+                color: 0x00ff80, // Neon green
+                wireframe: true,
+                transparent: true,
+                opacity: 0,
+                side: THREE.DoubleSide
+            });
+            const pearWireMesh = new THREE.Mesh(pearGeo, pearWireMat);
+            pearWireMesh.scale.set(1.001, 1.001, 1.001); // Slightly larger to prevent z-fighting
+            pearGroup.add(pearWireMesh);
+
+            // 3. The Stem
+            const stemGeo = new THREE.CylinderGeometry(0.03, 0.08, 0.6, 32);
+            // shift pivot to bottom
+            stemGeo.translate(0, 0.3, 0); 
+            const stemMat = new THREE.MeshStandardMaterial({
+                color: 0x3d2817, // Rich brown
+                roughness: 0.9,
+                metalness: 0.1
+            });
+            const stem = new THREE.Mesh(stemGeo, stemMat);
+            stem.position.set(0, 1.65, 0);
+            // Bend the stem slightly
+            stem.rotation.z = -0.15;
+            stem.rotation.x = 0.1;
+            pearGroup.add(stem);
+
+            scene.add(pearGroup);
+
+            // --- Enhanced Studio Lighting ---
+            // Hemisphere gives better 3D depth than flat AmbientLight
+            const ambient = new THREE.HemisphereLight(0xffffff, 0x444444, 1.2);
+            scene.add(ambient);
+
+            // Key light (Cyan)
+            const dirLight1 = new THREE.DirectionalLight(0x00ffff, 2.0);
+            dirLight1.position.set(5, 5, 5);
+            scene.add(dirLight1);
+
+            // Fill light (Magenta)
+            const dirLight2 = new THREE.DirectionalLight(0xff00ff, 2.0);
+            dirLight2.position.set(-5, -5, 5);
+            scene.add(dirLight2);
+
+            // Rim light (Yellow/White)
+            const dirLight3 = new THREE.DirectionalLight(0xfffaee, 2.0);
+            dirLight3.position.set(0, 5, -5);
+            scene.add(dirLight3);
+
+            // Mouse-tracking Point Light for glossy specular highlights
+            mouseLight = new THREE.PointLight(0xffffff, 3.0, 10);
+            mouseLight.position.set(0, 0, 5);
+            scene.add(mouseLight);
+
+            // --- Window Resize ---
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                const _isMobile = window.innerWidth < 768;
+                camera.position.z = _isMobile ? 12 : 8;
+                // Re-trigger GSAP calculation
+                ScrollTrigger.refresh();
+            });
+
+            // --- Mouse Move for Parallax & Light ---
+            document.addEventListener('mousemove', (e) => {
+                mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+                mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+            });
+
+            renderLoop();
+        }
+
+        const clock = new THREE.Clock();
+        
+        function renderLoop() {
+            requestAnimationFrame(renderLoop);
+            
+            const elapsedTime = clock.getElapsedTime();
+
+            // Smooth mouse interpolation
+            targetX = mouseX * 0.5;
+            targetY = mouseY * 0.5;
+
+            // Base gentle floating animation independent of scroll
+            pearGroup.position.y += Math.sin(elapsedTime * 1.5) * 0.002;
+            
+            // Mouse parallax effect (subtle rotation)
+            pearGroup.rotation.x += (targetY * 0.5 - pearGroup.rotation.x) * 0.05;
+            // Add continuous slow rotation + mouse offset
+            pearGroup.rotation.y += 0.005 + (targetX * 0.5 - (pearGroup.rotation.y % (Math.PI*2))) * 0.01;
+
+            // Move light with mouse
+            mouseLight.position.x += (mouseX * 5 - mouseLight.position.x) * 0.1;
+            mouseLight.position.y += (mouseY * 5 - mouseLight.position.y) * 0.1;
+
+            renderer.render(scene, camera);
+        }
+
+        // --- 4. SCROLLYTELLING (GSAP) ---
+        function initScrollytelling() {
+            splitText('.split-target');
+
+            // --- Timeline for 3D Pear ---
+            const tl3D = gsap.timeline({
+                scrollTrigger: {
+                    trigger: "#smooth-wrapper",
+                    start: "top top",
+                    end: "bottom bottom",
+                    scrub: 1, // Smooth scrubbing
+                }
+            });
+
+            // Calculate responsive offsets (Reduced offX to prevent screen clipping)
+            const offX = isMobile ? 0 : 1.65;
+
+            // Hero -> About
+            tl3D.to(pearGroup.position, { x: offX, y: -0.5, z: 2, ease: "power1.inOut" }, 0);
+            tl3D.to(pearGroup.rotation, { y: Math.PI * 2, z: 0.3, ease: "power1.inOut" }, 0);
+            tl3D.to(pearMat.color, { r: 1, g: 0.2, b: 0.5, ease: "none" }, 0); // Shift to magenta/red
+
+            // About -> Services
+            tl3D.to(pearGroup.position, { x: -offX, y: 0.5, z: 1, ease: "power1.inOut" }, 1);
+            tl3D.to(pearGroup.rotation, { y: Math.PI * 4, x: 0.5, z: -0.2, ease: "power1.inOut" }, 1);
+            
+            // Smooth morph: Crossfade solid out, wireframe in
+            tl3D.to(pearMat, { opacity: 0, roughness: 0.8 }, 1);
+            tl3D.to(pearWireMat, { opacity: 1 }, 1);
+
+            // Services -> Values (Horizontal section)
+            tl3D.to(pearGroup.position, { x: 0, y: 0, z: -2, ease: "power1.inOut" }, 2);
+            tl3D.to(pearGroup.rotation, { y: Math.PI * 6, x: 0, z: 0, ease: "power1.inOut" }, 2);
+            
+            // Smooth morph: Crossfade wireframe out, solid in
+            tl3D.to(pearMat, { opacity: 1, roughness: 0.3 }, 2);
+            tl3D.to(pearWireMat, { opacity: 0 }, 2);
+            tl3D.to(pearMat.color, { r: 1, g: 1, b: 1, ease: "none" }, 2); // White flash behind panels
+
+            // Values -> Marquee
+            tl3D.to(pearGroup.position, { x: 0, y: 0, z: -5, ease: "power1.inOut" }, 3);
+            tl3D.to(pearMat.color, { r: 0.1, g: 0.1, b: 1, ease: "none" }, 3); // Deep blue
+
+            // Marquee -> Contact (The Bite)
+            tl3D.to(pearGroup.position, { x: 0, y: -1, z: 6, ease: "power2.in" }, 4); // Comes extremely close
+            tl3D.to(pearMat.color, { r: 0.9, g: 0.9, b: 0.1, ease: "none" }, 4); // Back to Golden
+
+            // --- HTML DOM Animations ---
+
+            // Horizontal Scroll for Values
+            const track = document.getElementById('values-track');
+            gsap.to(track, {
+                xPercent: -75,
+                ease: "none",
+                scrollTrigger: {
+                    trigger: "#section-values",
+                    start: "top top",
+                    end: "+=300%",
+                    pin: true,
+                    scrub: 1
+                }
+            });
+            
+            // About Section Reveal
+            gsap.from(".section-2-text .char", {
+                scrollTrigger: { trigger: "#section-about", start: "top 60%", end: "top 30%", scrub: 1 },
+                yPercent: 100, opacity: 0, stagger: 0.05, ease: "power3.out"
+            });
+            gsap.from(".section-2-fade", {
+                scrollTrigger: { trigger: "#section-about", start: "top 50%", end: "top 20%", scrub: 1 },
+                opacity: 0, y: 50, ease: "power2.out"
+            });
+
+            // Services Section Reveal
+            gsap.from(".section-3-text .char", {
+                scrollTrigger: { trigger: "#section-services", start: "top 60%", end: "top 30%", scrub: 1 },
+                yPercent: 100, opacity: 0, stagger: 0.05, ease: "power3.out"
+            });
+            gsap.from(".section-3-fade li", {
+                scrollTrigger: { trigger: "#section-services", start: "top 50%", end: "top 20%", scrub: 1 },
+                opacity: 0, x: 50, stagger: 0.1, ease: "power2.out"
+            });
+
+            // Marquee Animation
+            gsap.to(".marquee-text", {
+                scrollTrigger: { trigger: "#section-marquee", start: "top bottom", end: "bottom top", scrub: 1 },
+                xPercent: -20, ease: "none"
+            });
+            gsap.to(".marquee-text-reverse", {
+                scrollTrigger: { trigger: "#section-marquee", start: "top bottom", end: "bottom top", scrub: 1 },
+                xPercent: 20, ease: "none"
+            });
+
+            // Contact Reveal
+            gsap.from("#section-contact .char", {
+                scrollTrigger: { trigger: "#section-contact", start: "top 80%", end: "center center", scrub: 1 },
+                yPercent: 100, opacity: 0, stagger: 0.05, scale: 0.5, transformOrigin: "bottom center", ease: "back.out(1.5)"
+            });
+        }
+
+        // --- 5. CUSTOM CURSOR ---
+        function initCustomCursor() {
+            const cursor = document.getElementById('cursor');
+
+            // Detect actual touch capability, not screen width
+            if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.matchMedia("(pointer: coarse)").matches) {
+                cursor.style.display = 'none';
+                return;
+            }
+
+            // Force hide native cursor when JS custom cursor is active
+            const style = document.createElement('style');
+            style.innerHTML = `body, a, button, .cursor-hover, .cursor-scroll, .magnetic-btn { cursor: none !important; }`;
+            document.head.appendChild(style);
+
+            let cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+            let tx = cx, ty = cy;
+
+            document.addEventListener('mousemove', (e) => {
+                tx = e.clientX;
+                ty = e.clientY;
+            });
+
+            // Smooth follow
+            gsap.ticker.add(() => {
+                cx += (tx - cx) * 0.2;
+                cy += (ty - cy) * 0.2;
+                // Preserve the centering from CSS by appending translate(-50%, -50%)
+                cursor.style.transform = `translate3d(${cx}px, ${cy}px, 0) translate(-50%, -50%)`;
+            });
+
+            // Hover effects
+            const hoverElements = document.querySelectorAll('.cursor-hover, a, button');
+            hoverElements.forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+            });
+
+            // Scroll cursor effects
+            const scrollElements = document.querySelectorAll('.cursor-scroll');
+            scrollElements.forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('scroll-state'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('scroll-state'));
+            });
+
+            // Magnetic Button Logic
+            const magneticBtns = document.querySelectorAll('.magnetic-btn');
+            magneticBtns.forEach(btn => {
+                btn.addEventListener('mousemove', (e) => {
+                    const rect = btn.getBoundingClientRect();
+                    const x = e.clientX - rect.left - rect.width / 2;
+                    const y = e.clientY - rect.top - rect.height / 2;
+                    gsap.to(btn, { x: x * 0.3, y: y * 0.3, duration: 0.3, ease: 'power2.out' });
+                });
+                btn.addEventListener('mouseleave', () => {
+                    gsap.to(btn, { x: 0, y: 0, duration: 0.7, ease: 'elastic.out(1, 0.3)' });
+                    cursor.classList.remove('hover');
+                });
+                btn.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+            });
+        }
+    </script>
+</body>
+</html>

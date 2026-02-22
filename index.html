@@ -48,6 +48,13 @@
 
         ::-webkit-scrollbar { display: none; }
 
+        /* Accessibility: Strict Focus States */
+        a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+            outline: 3px solid #dfff00;
+            outline-offset: 6px;
+            border-radius: 2px;
+        }
+
         #webgl-container {
             position: fixed;
             top: 0;
@@ -68,9 +75,15 @@
             will-change: transform, opacity;
         }
         
+        /* Drastically improved PEAR visibility with brutalist hard shadows */
         .text-outline {
-            color: transparent;
-            -webkit-text-stroke: 1px rgba(244, 244, 240, 0.5);
+            color: rgba(244, 244, 240, 0.12);
+            -webkit-text-stroke: max(2.5px, 0.35vw) #f4f4f0;
+            text-shadow: 4px 4px 0px #050505, 0 10px 40px rgba(5, 5, 5, 0.95);
+        }
+
+        .text-solid-shadow {
+            text-shadow: 4px 4px 0px #050505, 0 4px 20px rgba(5, 5, 5, 0.9);
         }
 
         .noise {
@@ -199,34 +212,35 @@
 </head>
 <body>
 
-    <div class="noise"></div>
-    <div id="cursor"></div>
+    <div class="noise" aria-hidden="true"></div>
+    <div id="cursor" aria-hidden="true"></div>
 
-    <div id="loader">
-        <svg id="pear-loader-svg" viewBox="0 0 100 120" class="w-24 h-24 md:w-32 md:h-32 stroke-brand-accent fill-transparent" style="stroke-width: 3px; stroke-linecap: round; stroke-linejoin: round;">
+    <div id="loader" role="alert" aria-busy="true" aria-label="Loading Templepear Experience">
+        <svg id="pear-loader-svg" aria-hidden="true" viewBox="0 0 100 120" class="w-24 h-24 md:w-32 md:h-32 stroke-brand-accent fill-transparent" style="stroke-width: 3px; stroke-linecap: round; stroke-linejoin: round;">
             <path id="pear-loader-path" d="M 60 10 C 55 5, 50 10, 50 20 C 35 20, 20 40, 15 70 C 10 95, 30 115, 50 115 C 70 115, 90 95, 85 70 C 80 40, 65 20, 50 20" />
         </svg>
     </div>
 
-    <div id="webgl-container"></div>
+    <div id="webgl-container" aria-hidden="true"></div>
 
-    <div id="smooth-wrapper">
+    <main id="smooth-wrapper">
         <div id="smooth-content" id="content">
             
-            <nav class="fixed top-0 left-0 w-full p-6 md:p-8 flex justify-between items-center z-50 mix-blend-difference text-white">
-                <div class="font-display font-bold text-lg md:text-xl tracking-wider uppercase cursor-hover">TEMPLEPEAR&copy;</div>
-            </nav>
+            <header class="fixed top-0 left-0 w-full p-6 md:p-8 flex justify-between items-center z-50 mix-blend-difference text-white pointer-events-none">
+                <div class="font-display font-bold text-lg md:text-xl tracking-wider uppercase pointer-events-auto cursor-hover" tabindex="0">TEMPLEPEAR&copy;</div>
+            </header>
 
             <section class="h-screen w-full flex flex-col justify-center items-center relative mix-blend-difference px-4" id="section-hero">
                 <div class="flex flex-col justify-center items-center w-full max-w-[100vw] overflow-hidden">
-                    <h1 class="font-display font-bold uppercase split-target fluid-hero">
+                    <h1 class="sr-only">Temple Pear</h1>
+                    <div aria-hidden="true" class="font-display font-bold uppercase split-target fluid-hero text-solid-shadow">
                         TEMPLE
-                    </h1>
-                    <h1 class="font-display font-bold uppercase text-outline split-target fluid-hero">
+                    </div>
+                    <div aria-hidden="true" class="font-display font-bold uppercase text-outline split-target fluid-hero z-10 relative">
                         PEAR
-                    </h1>
+                    </div>
                 </div>
-                <div class="absolute bottom-10 left-6 md:left-10 text-[10px] md:text-xs tracking-widest uppercase text-white/50">
+                <div class="absolute bottom-10 left-6 md:left-10 text-[10px] md:text-xs tracking-widest uppercase text-white/50" aria-hidden="true">
                     <p>Scroll to explore.</p>
                 </div>
             </section>
@@ -236,7 +250,7 @@
                     <h2 class="font-display text-4xl md:text-7xl font-bold uppercase leading-tight mb-8 section-2-text">
                         We shape<br>experiences.
                     </h2>
-                    <p class="text-base md:text-xl font-light max-w-md text-white/80 leading-relaxed section-2-fade">
+                    <p class="text-base md:text-xl font-light max-w-md text-white/90 leading-relaxed section-2-fade">
                         Templepear is a web design agency based on creativity. We use WebGL, advanced motion physics, and uncompromising typography to build digital platforms that leave a lasting impact.
                     </p>
                 </div>
@@ -250,21 +264,21 @@
                 </div>
             </section>
 
-            <section class="h-screen w-full relative bg-brand-dark overflow-hidden" id="section-values">
+            <section class="h-screen w-full relative bg-brand-dark overflow-hidden" id="section-values" aria-label="Our Core Values">
                 <div class="h-full flex w-[400vw]" id="values-track">
-                    <div class="w-screen h-full flex flex-col justify-center px-6 md:px-20 bg-[#FF0055]/90 backdrop-blur-md text-white cursor-scroll hover-trigger">
+                    <div class="w-screen h-full flex flex-col justify-center px-6 md:px-20 bg-[#B8003D]/95 backdrop-blur-md text-brand-light cursor-scroll hover-trigger">
                         <h3 class="font-display font-black uppercase overflow-hidden fluid-value">
                             <span class="value-title">Fearless.</span>
                         </h3>
                         <p class="text-xl md:text-4xl font-light mt-4 max-w-2xl opacity-0 value-desc">We innovate instead of being confined, jumping off cliffs to see the water below.</p>
                     </div>
-                    <div class="w-screen h-full flex flex-col justify-center px-6 md:px-20 bg-[#0055FF]/90 backdrop-blur-md text-white cursor-scroll hover-trigger">
+                    <div class="w-screen h-full flex flex-col justify-center px-6 md:px-20 bg-[#003CBB]/95 backdrop-blur-md text-brand-light cursor-scroll hover-trigger">
                         <h3 class="font-display font-black uppercase overflow-hidden fluid-value">
                             <span class="value-title">Crafted.</span>
                         </h3>
                         <p class="text-xl md:text-4xl font-light mt-4 max-w-2xl opacity-0 value-desc">Every pixel, every vertex, meticulously positioned for the user experience.</p>
                     </div>
-                    <div class="w-screen h-full flex flex-col justify-center px-6 md:px-20 bg-[#FF4400]/90 backdrop-blur-md text-white cursor-scroll hover-trigger">
+                    <div class="w-screen h-full flex flex-col justify-center px-6 md:px-20 bg-[#B83300]/95 backdrop-blur-md text-brand-light cursor-scroll hover-trigger">
                         <h3 class="font-display font-black uppercase overflow-hidden fluid-value">
                             <span class="value-title">Kinetic.</span>
                         </h3>
@@ -274,21 +288,21 @@
                         <h3 class="font-display font-black uppercase overflow-hidden fluid-value">
                             <span class="value-title text-brand-dark">Immersive.</span>
                         </h3>
-                        <p class="text-xl md:text-4xl font-light mt-4 max-w-2xl opacity-0 value-desc text-brand-dark">We don't just build pages. We build unforgettable digital ecosystems.</p>
+                        <p class="text-xl md:text-4xl font-bold mt-4 max-w-2xl opacity-0 value-desc text-brand-dark">We don't just build pages. We build unforgettable digital ecosystems.</p>
                     </div>
                 </div>
             </section>
 
-            <section class="h-[150vh] w-full relative overflow-hidden mix-blend-difference" id="section-marquee">
+            <section class="h-[150vh] w-full relative overflow-hidden mix-blend-difference" id="section-marquee" aria-hidden="true">
                 <div class="sticky top-0 h-screen flex flex-col justify-center">
                     <div class="marquee-container whitespace-nowrap overflow-hidden -rotate-2 scale-110">
-                        <h2 class="font-display text-[15vw] font-black uppercase text-outline marquee-text leading-none">
+                        <h2 class="font-display text-[26vw] sm:text-[20vw] md:text-[15vw] font-black uppercase text-outline marquee-text leading-none z-10 relative">
                             EXPERIENCE DESIGN EXPERIENCE DESIGN EXPERIENCE
                         </h2>
-                        <h2 class="font-display text-[15vw] font-black uppercase text-brand-light marquee-text-reverse leading-none">
+                        <h2 class="font-display text-[26vw] sm:text-[20vw] md:text-[15vw] font-black uppercase text-brand-light marquee-text-reverse leading-none z-10 relative">
                             FUTURE VISION FUTURE VISION FUTURE VISION FUTURE
                         </h2>
-                        <h2 class="font-display text-[15vw] font-black uppercase text-outline marquee-text leading-none">
+                        <h2 class="font-display text-[26vw] sm:text-[20vw] md:text-[15vw] font-black uppercase text-outline marquee-text leading-none z-10 relative">
                             DIGITAL IMMERSION DIGITAL IMMERSION DIGITAL
                         </h2>
                     </div>
@@ -297,27 +311,28 @@
 
             <section class="h-screen w-full flex flex-col justify-center items-center relative bg-brand-accent text-brand-dark px-6" id="section-contact">
                 <div class="flex flex-col items-center justify-center w-full z-10 text-center">
-                    <h2 class="font-display text-[10vw] md:text-[6vw] font-bold uppercase split-target text-brand-dark leading-none mb-8">
+                    <h2 class="font-display text-[10vw] md:text-[6vw] font-bold uppercase split-target text-brand-dark leading-none mb-8 text-solid-shadow" style="text-shadow: 0 4px 15px rgba(5,5,5,0.15);">
                         Ready to start?
                     </h2>
-                    <a href="mailto:ledinhvuong2013@gmail.com" class="magnetic-btn flex items-center gap-3 text-lg md:text-3xl font-bold text-brand-dark border-b-2 border-transparent hover:border-brand-dark pb-1 transition-all duration-300">
-                        <svg class="w-6 h-6 md:w-10 md:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    <a href="mailto:ledinhvuong2013@gmail.com" class="magnetic-btn flex items-center gap-3 text-lg md:text-3xl font-bold text-brand-dark border-b-4 border-transparent hover:border-brand-dark py-4 transition-all duration-300 min-h-[44px]">
+                        <svg class="w-6 h-6 md:w-10 md:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                         ledinhvuong2013@gmail.com
                     </a>
                 </div>
-                <div class="absolute bottom-0 left-0 w-full p-6 md:p-10 flex flex-col md:flex-row justify-between items-center text-[10px] md:text-sm font-bold uppercase tracking-widest z-10 border-t-2 border-brand-dark bg-brand-dark text-brand-light">
+                
+                <footer class="absolute bottom-0 left-0 w-full p-6 md:p-10 flex flex-col md:flex-row justify-between items-center text-[10px] md:text-sm font-bold uppercase tracking-widest z-10 border-t-2 border-brand-dark bg-brand-dark text-brand-light">
                     <span class="mb-2 md:mb-0">Templepear © 2026.</span>
                     <span class="text-brand-accent">All rights reserved.</span>
-                </div>
+                </footer>
             </section>
 
         </div>
-    </div>
+    </main>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js" defer></script>
 
     <script>
         window.addEventListener('load', () => {
@@ -326,9 +341,10 @@
             function splitText(selector) {
                 document.querySelectorAll(selector).forEach(el => {
                     const text = el.innerText.trim();
+                    el.setAttribute('aria-label', text);
                     el.innerHTML = text.split('').map(char => {
-                        if (char === ' ') return `<span class="char" style="width: 0.3em;">&nbsp;</span>`;
-                        return `<span class="char">${char}</span>`;
+                        if (char === ' ') return `<span aria-hidden="true" class="char" style="width: 0.3em;">&nbsp;</span>`;
+                        return `<span aria-hidden="true" class="char">${char}</span>`;
                     }).join('');
                 });
             }
@@ -379,7 +395,9 @@
                     duration: 1.2,
                     ease: "power4.inOut",
                     onComplete: () => {
-                        document.getElementById('loader').style.display = 'none';
+                        const loader = document.getElementById('loader');
+                        loader.style.display = 'none';
+                        loader.setAttribute('aria-busy', 'false');
                     }
                 });
 
@@ -392,7 +410,7 @@
                     delay: 0.4
                 });
 
-                if (pearGroup) {
+                if (typeof pearGroup !== 'undefined') {
                     gsap.from(pearGroup.position, {
                         y: -5,
                         duration: 2.5,
@@ -444,9 +462,7 @@
                 renderer.toneMappingExposure = 1.2;
                 container.appendChild(renderer.domElement);
 
-                // --- 3D PARTICLES SYSTEM ---
-                // Increased particle count for more density
-                const particleCount = isMobileDevice ? 3000 : 8000;
+                const particleCount = isMobileDevice ? 1500 : 8000;
                 const particleGeo = new THREE.BufferGeometry();
                 const posArray = new Float32Array(particleCount * 3);
                 
@@ -455,7 +471,6 @@
                 }
                 particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
 
-                // Create custom circular sprite for particles
                 const canvas = document.createElement('canvas');
                 canvas.width = 64;
                 canvas.height = 64;
@@ -470,7 +485,7 @@
                 const sprite = new THREE.CanvasTexture(canvas);
 
                 particleMat = new THREE.PointsMaterial({
-                    size: 0.22, // Increased particle size
+                    size: 0.22,
                     map: sprite,
                     transparent: true,
                     blending: THREE.AdditiveBlending,
@@ -482,19 +497,24 @@
                 particles = new THREE.Points(particleGeo, particleMat);
                 scene.add(particles);
 
-                // --- PEAR SYSTEM ---
                 pearGroup = new THREE.Group();
                 scene.add(pearGroup);
 
-                const points = [];
-                const segments = 100; 
-                for (let i = 0; i <= segments; i++) {
-                    const t = i / segments; 
-                    const y = (t * 3.5) - 1.75; 
-                    const x = Math.sin(t * Math.PI) * (1.2 + 0.5 * Math.cos(t * Math.PI)) * (1 - t * 0.2); 
-                    points.push(new THREE.Vector2(Math.max(0.001, x), y)); 
-                }
-
+                // --- REALISTIC PEAR SPLINE PROFILING ---
+                const profilePoints = [
+                    new THREE.Vector2(0.001, -1.75), // Bottom center
+                    new THREE.Vector2(0.4, -1.75),   // Flat bottom curve
+                    new THREE.Vector2(1.15, -1.1),   // Tighter bottom bulb (reduced from 1.4)
+                    new THREE.Vector2(1.15, -0.3),   // Tighter upward sweep (reduced from 1.4)
+                    new THREE.Vector2(0.75, 0.4),    // Narrower pinched waist (reduced from 0.9)
+                    new THREE.Vector2(0.65, 1.0),    // Top mass proportional scale
+                    new THREE.Vector2(0.35, 1.5),    // Tapering to the shoulder
+                    new THREE.Vector2(0.001, 1.6)    // Stem base
+                ];
+                const curve = new THREE.SplineCurve(profilePoints);
+                const points = curve.getPoints(100);
+                
+                // 128 segments for ultra-smooth rendering
                 const pearGeo = new THREE.LatheGeometry(points, 128);
                 pearGeo.computeVertexNormals();
 
@@ -523,7 +543,8 @@
                 wire.scale.set(1.002, 1.002, 1.002);
                 pearGroup.add(wire);
 
-                const stemGeo = new THREE.CylinderGeometry(0.03, 0.08, 0.6, 32);
+                // Stem update to fit the refined organic geometry
+                const stemGeo = new THREE.CylinderGeometry(0.03, 0.06, 0.6, 32);
                 stemGeo.translate(0, 0.3, 0); 
                 const stemMat = new THREE.MeshStandardMaterial({
                     color: 0x3d2817, 
@@ -531,10 +552,19 @@
                     metalness: 0.1
                 });
                 const stem = new THREE.Mesh(stemGeo, stemMat);
-                stem.position.set(0, 1.65, 0);
+                stem.position.set(0, 1.55, 0); // Nestled into the peak
                 stem.rotation.z = -0.15;
                 stem.rotation.x = 0.1;
                 pearGroup.add(stem);
+
+                // Scale down significantly on mobile to free up typography space
+                const pearScale = isMobileDevice ? 0.55 : 0.8;
+                pearGroup.scale.set(pearScale, pearScale, pearScale);
+
+                // Pre-offset the Y coordinate exclusively on mobile
+                if (isMobileDevice) {
+                    pearGroup.position.y = -1.5;
+                }
 
                 const ambient = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
                 scene.add(ambient);
@@ -609,8 +639,9 @@
                 });
 
                 const getOffX = () => window.innerWidth < 768 ? 0 : 1.65;
+                const getHeroY = () => window.innerWidth < 768 ? -1.8 : -0.5;
 
-                tl3D.to(pearGroup.position, { x: getOffX(), y: -0.5, z: 2, ease: "power1.inOut" }, 0);
+                tl3D.to(pearGroup.position, { x: getOffX(), y: getHeroY(), z: 2, ease: "power1.inOut" }, 0);
                 tl3D.to(pearGroup.rotation, { y: Math.PI * 2, z: 0.3, ease: "power1.inOut" }, 0);
                 tl3D.to(pearMat.color, { r: 1, g: 0.2, b: 0.5, ease: "none" }, 0); 
                 tl3D.to(particleMat.color, { r: 1, g: 0.2, b: 0.5, ease: "none" }, 0);
@@ -703,7 +734,7 @@
                     cursor.style.transform = `translate3d(${cx}px, ${cy}px, 0) translate(-50%, -50%)`;
                 });
 
-                const hoverElements = document.querySelectorAll('.cursor-hover, a, button');
+                const hoverElements = document.querySelectorAll('.cursor-hover, a, button, [tabindex]');
                 hoverElements.forEach(el => {
                     el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
                     el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));

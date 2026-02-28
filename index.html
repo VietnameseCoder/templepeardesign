@@ -206,14 +206,15 @@
 
         @media (max-width: 640px) {
             .fluid-value {
-                font-size: clamp(2.2rem, 12vw, 4.5rem);
+                font-size: clamp(2rem, 11vw, 4rem);
                 line-height: 1.2;
             }
         }
         
-        @media (max-width: 380px) {
+        @media (max-width: 480px) {
             .fluid-value {
-                font-size: 13vw;
+                font-size: clamp(1.8rem, 10vw, 3rem);
+                line-height: 1.2;
             }
         }
     </style>
@@ -275,26 +276,26 @@
             <section class="h-screen w-full relative bg-brand-dark overflow-hidden" id="section-values" aria-label="Our Core Values">
                 <div class="h-full flex w-[400vw]" id="values-track">
                     <div class="w-screen h-full flex flex-col justify-center px-6 md:px-20 bg-[#B8003D]/95 backdrop-blur-md text-brand-light cursor-scroll hover-trigger">
-                        <h3 class="font-display font-black uppercase overflow-hidden fluid-value">
+                        <h3 class="font-display font-black uppercase fluid-value relative z-10">
                             <span class="value-title split-target">Fearless.</span>
                         </h3>
                         <p class="text-xl md:text-4xl font-light mt-4 max-w-2xl opacity-0 value-desc">We innovate instead of being confined, jumping off cliffs to see the water below.</p>
                     </div>
                     <div class="w-screen h-full flex flex-col justify-center px-6 md:px-20 bg-[#003CBB]/95 backdrop-blur-md text-brand-light cursor-scroll hover-trigger">
-                        <h3 class="font-display font-black uppercase overflow-hidden fluid-value">
+                        <h3 class="font-display font-black uppercase fluid-value relative z-10">
                             <span class="value-title split-target">Crafted.</span>
                         </h3>
                         <p class="text-xl md:text-4xl font-light mt-4 max-w-2xl opacity-0 value-desc">Every pixel, every vertex, meticulously positioned for the user experience.</p>
                     </div>
                     <div class="w-screen h-full flex flex-col justify-center px-6 md:px-20 bg-[#B83300]/95 backdrop-blur-md text-brand-light cursor-scroll hover-trigger">
-                        <h3 class="font-display font-black uppercase overflow-hidden fluid-value">
+                        <h3 class="font-display font-black uppercase fluid-value relative z-10">
                             <span class="value-title split-target">Kinetic.</span>
                         </h3>
                         <p class="text-xl md:text-4xl font-light mt-4 max-w-2xl opacity-0 value-desc">Motion is the status quo. Static blocks of text simply don't work anymore.</p>
                     </div>
                     <div class="w-screen h-full flex flex-col justify-center px-6 md:px-20 bg-[#dfff00]/95 backdrop-blur-md text-brand-dark cursor-scroll hover-trigger">
-                        <h3 class="font-display font-black uppercase overflow-hidden fluid-value">
-                            <span class="value-title text-brand-dark split-target">Immersive.</span>
+                        <h3 class="font-display font-black uppercase fluid-value relative z-10 text-brand-dark">
+                            <span class="value-title split-target">Immersive.</span>
                         </h3>
                         <p class="text-xl md:text-4xl font-bold mt-4 max-w-2xl opacity-0 value-desc text-brand-dark">We don't just build pages. We build unforgettable digital ecosystems.</p>
                     </div>

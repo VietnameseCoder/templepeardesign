@@ -210,6 +210,28 @@
                 line-height: 1.2;
             }
         }
+        @media (max-width: 767px) {
+            .mobile-text-box {
+                background: rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                padding: 0.5rem 1.5rem;
+                border-radius: 1.5rem;
+                border: 1px solid rgba(255, 255, 255, 0.25);
+                width: max-content;
+                line-height: 1.1;
+                margin-bottom: 0.5rem;
+            }
+            .mobile-text-box-small {
+                background: rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                padding: 0.5rem 1.25rem;
+                border-radius: 2rem;
+                border: 1px solid rgba(255, 255, 255, 0.25);
+                width: max-content;
+            }
+        }
     </style>
 </head>
 <body>
@@ -240,14 +262,14 @@
             <section class="h-[100svh] w-full flex flex-col justify-end items-center relative mix-blend-difference px-4 pb-12 md:pb-20" id="section-hero" aria-label="Welcome to Templepear">
                 <div class="flex flex-col justify-center items-center w-full max-w-[100vw] overflow-hidden z-10 relative">
                     <h1 class="sr-only">Templepear: Hyper-Creative WebGL & Digital Design Agency</h1>
-                    <div aria-hidden="true" class="font-display font-bold uppercase split-target fluid-hero text-solid-shadow tracking-tighter">
+                    <div aria-hidden="true" class="font-display font-bold uppercase split-target fluid-hero text-solid-shadow tracking-tighter mobile-text-box">
                         TEMPLE
                     </div>
-                    <div aria-hidden="true" class="font-display font-bold uppercase text-solid-shadow split-target fluid-hero z-10 relative tracking-tighter">
+                    <div aria-hidden="true" class="font-display font-bold uppercase text-solid-shadow split-target fluid-hero z-10 relative tracking-tighter mobile-text-box">
                         PEAR
                     </div>
                 </div>
-                <div class="mt-6 md:mt-8 text-[10px] md:text-xs tracking-widest uppercase text-white/50" aria-hidden="true">
+                <div class="mt-6 md:mt-8 text-[10px] md:text-xs tracking-widest uppercase text-white/50 mobile-text-box-small" aria-hidden="true">
                     <p>Scroll to explore.</p>
                 </div>
             </section>
